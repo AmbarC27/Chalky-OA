@@ -1,0 +1,56 @@
+.Sidepanel {
+    width: 72px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .Sidepanel__item {
+    flex: 1;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    background: none;
+  
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  
+    position: relative;
+  }
+  
+  /* backgrounds */
+  .Sidepanel__item--top {
+    background: #efe2c2;
+  }
+  
+  .Sidepanel__item--bottom {
+    background: #cfe8e1;
+  
+    /* middle divider always present */
+    border-top: 6px solid #1f5f4a;
+  }
+  
+  /* right accent — ALWAYS exists */
+  .Sidepanel__rightAccent {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 6px;
+    height: 100%;
+    background: #1f5f4a;
+  }
+  
+  /* hide accent when active */
+  .Sidepanel__item.is-active .Sidepanel__rightAccent {
+    opacity: 0;
+  }
+  
+  .Sidepanel__label {
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    font-size: 12px;
+    transform: rotate(-90deg);
+    white-space: nowrap;
+  }
+  
