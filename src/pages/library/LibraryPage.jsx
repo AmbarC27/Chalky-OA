@@ -1,17 +1,17 @@
-import "./LibraryPage.css";
 import { useState } from "react";
+import "./LibraryPage.css";
 
 const SHELVES = [
-    { id: "s1", label: "A-B" },
-    { id: "s2", label: "C-D-E" },
-    { id: "s3", label: "F-G-H" },
-    { id: "s4", label: "I-J-K" },
-    { id: "s5", label: "L-M-N" },
-    { id: "s6", label: "O-P-Q" },
-    { id: "s7", label: "R-S-T" },
-    { id: "s8", label: "U-V-W" },
-    { id: "s9", label: "X-Y-Z" },
-  ];
+  { id: "s1", label: "A-B" },
+  { id: "s2", label: "C-D-E" },
+  { id: "s3", label: "F-G-H" },
+  { id: "s4", label: "I-J-K" },
+  { id: "s5", label: "L-M-N" },
+  { id: "s6", label: "O-P-Q" },
+  { id: "s7", label: "R-S-T" },
+  { id: "s8", label: "U-V-W" },
+  { id: "s9", label: "X-Y-Z" },
+];
 
 function Shelf({ label, isFirst, onMoreBooks }) {
   return (
@@ -27,7 +27,11 @@ function Shelf({ label, isFirst, onMoreBooks }) {
           <div className="BookSlot" />
           <div className="BookSlot" />
 
-          <button type="button" className="Shelf__button" onClick={onMoreBooks}>
+          <button
+            type="button"
+            className="Shelf__button"
+            onClick={() => onMoreBooks(label)}   // 👈 pass label up
+          >
             More
             <br />
             Books
@@ -57,17 +61,18 @@ function ShelfHouse({ onMoreBooks }) {
   );
 }
 
-function GridHouse({ totalBooks = 8 }) {
-  // 4 books per row, minimum 2 rows => minimum 8 slots
-  const slots = Math.max(totalBooks, 8);
+function GridHouse({ label, totalBooks = 8 }) {
+  const slots = Math.max(totalBooks, 8); // min 2 rows (4 per row)
 
   return (
     <div className="Bookhouse">
       <div className="Bookhouse__walls">
-        {/* Roof plank (same style as your top floor divider) */}
-        <div className="Shelf__plank Shelf__plank--roof" />
+        {/* Roof plank with SAME label */}
+        <div className="Shelf__plank Shelf__plank--roof">
+          <span className="Shelf__label">{label}</span>
+        </div>
 
-        {/* One huge interior (single “floor”) */}
+        {/* One big interior */}
         <div className="Shelf__interior Shelf__interior--big">
           <div className="GridHouse__grid">
             {Array.from({ length: slots }).map((_, idx) => (
@@ -77,22 +82,40 @@ function GridHouse({ totalBooks = 8 }) {
         </div>
       </div>
 
-      {/* Attached platform stays identical */}
       <div className="Bookhouse__base" />
     </div>
   );
 }
 
-
 export default function LibraryPage() {
   const [view, setView] = useState("shelves"); // "shelves" | "grid"
+  const [activeLabel, setActiveLabel] = useState(null);
+
+  const handleMoreBooks = (label) => {
+    setActiveLabel(label);
+    setView("grid");
+  };
 
   return (
     <div className="LibraryPage">
       {view === "shelves" ? (
-        <ShelfHouse onMoreBooks={() => setView("grid")} />
+        <ShelfHouse onMoreBooks={handleMoreBooks} />
       ) : (
-        <GridHouse totalBooks={8} />
+        <div className="GridHouseWrapper">
+          <button
+            type="button"
+            className="BackButton"
+            onClick={() => setView("shelves")}
+            style={{
+              backgroundColor: "#2f5fb8",
+              color: "white",
+            }}
+          >
+            ← Back
+          </button>
+
+          <GridHouse label={activeLabel} totalBooks={8} />
+        </div>
       )}
     </div>
   );

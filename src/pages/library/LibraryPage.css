@@ -86,6 +86,7 @@
   /* Book placeholders */
   .BookSlot {
     height: 200px;
+    width: 160px;
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.18);
     border: 2px dashed rgba(255, 255, 255, 0.25);
@@ -134,6 +135,27 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 18px;
     align-items: end;
+
+    .GridHouseWrapper {
+        position: relative; /* anchor for BackButton */
+        display: inline-block; /* wrapper hugs the house width */
+      }
+
+    .GridHouseWrapper .BackButton {
+        position: absolute;
+        top: -48px;      /* places it above the roof */
+        left: 0;         /* left corner */
+        background: #2f5fb8; /* same as “More Books” button */
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.18);
+    }
+
+    
 }
       
   
