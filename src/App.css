@@ -4,7 +4,10 @@
 }
 
 .SidepanelWrapper {
-  /* no flex-grow */
+  position: sticky;
+  top: 0;               /* sticks to top while scrolling */
+  height: 100vh;        /* always full height */
+  flex: 0 0 auto;
 }
 
 .MainPage {
