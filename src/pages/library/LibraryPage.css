@@ -63,14 +63,18 @@
   
   /* Interior cavity */
   .Shelf__interior {
-    margin: 14px 16px 20px;
+    margin: 14px 16px 0;
     background: rgba(0, 0, 0, 0.1);
     border-radius: 14px;
     padding: 18px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
+  }
+
+  /* 5 equal slots */
+  .Shelf__slots {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
     gap: 18px;
+    align-items: end;
   }
   
   .Shelf__books {
@@ -79,9 +83,9 @@
     gap: 14px;
   }
   
+  /* Book placeholders */
   .BookSlot {
-    width: 86px;
-    height: 120px;
+    height: 200px;
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.18);
     border: 2px dashed rgba(255, 255, 255, 0.25);
@@ -112,6 +116,7 @@
     cursor: pointer;
     line-height: 1.05;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.18);
+    align-self: center;
   }
 
   .Shelf:last-child .Shelf__interior {

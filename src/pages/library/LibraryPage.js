@@ -22,18 +22,20 @@ function Shelf({ label, isFirst }) {
 
       {/* Inset interior */}
       <div className="Shelf__interior">
-        <div className="Shelf__books">
-          {Array.from({ length: 4 }).map((_, idx) => (
-            <div key={idx} className="BookSlot" />
-          ))}
-        </div>
+        <div className="Shelf__slots">
+            <div className="BookSlot" />
+            <div className="BookSlot" />
+            <div className="BookSlot" />
+            <div className="BookSlot" />
 
-        <button type="button" className="Shelf__button">
-          See more
-          <br />
-          Books
-        </button>
+            <button type="button" className="Shelf__button">
+            See more
+            <br />
+            Books
+            </button>
+        </div>
       </div>
+
     </section>
   );
 }
