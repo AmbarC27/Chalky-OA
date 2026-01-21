@@ -100,9 +100,11 @@ function ShelfHouse({ onMoreBooks, groupedData, groupedLoading, groupedError }) 
   );
 }
 
-function GridHouse({ label }) {
-
-  const titlePrefix = labelToPrefixes(label);
+function GridHouse({ label, searchPrefix }) {
+  // If searchPrefix exists, we're in search mode.
+  // Otherwise, we're in shelf "More Books" mode.
+  const titlePrefix = label ? labelToPrefixes(label) : [];
+  const typedPrefix = (searchPrefix || "").trim();
 
   const [page, setPage] = useState(0);
   const [books, setBooks] = useState([]);
@@ -110,17 +112,17 @@ function GridHouse({ label }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Reset when label changes
+  // Reset when label/search changes
   useEffect(() => {
     setPage(0);
     setBooks([]);
     setTotalBooks(null);
     setError("");
-  }, [label]);
+  }, [label, typedPrefix]);
 
-  // Fetch page 0 when label changes
   useEffect(() => {
-    if (titlePrefix.length === 0) return;
+    // guard: need either label or typed prefix
+    if (!typedPrefix && (!label || titlePrefix.length === 0)) return;
 
     const ac = new AbortController();
     setLoading(true);
@@ -130,7 +132,10 @@ function GridHouse({ label }) {
       {
         page: 0,
         row_per_page: 40,
-        title_prefix: titlePrefix,
+        // SEARCH MODE:
+        title: typedPrefix ? typedPrefix : undefined,
+        // SHELF MODE:
+        title_prefix: typedPrefix ? undefined : titlePrefix,
         sort_by: "title",
         sort_order: "asc",
       },
@@ -152,17 +157,18 @@ function GridHouse({ label }) {
 
     return () => ac.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [label]);
+  }, [label, typedPrefix]);
 
-  // Minimum 2 rows (4 per row => 8 slots)
   const minSlots = 8;
   const placeholdersNeeded = Math.max(0, minSlots - books.length);
+
+  const roofText = typedPrefix ? `Search: ${typedPrefix}` : label || "—";
 
   return (
     <div className="Bookhouse">
       <div className="Bookhouse__walls">
         <div className="Shelf__plank Shelf__plank--roof">
-          <span className="Shelf__label">{label}</span>
+          <span className="Shelf__label">{roofText}</span>
         </div>
 
         <div className="Shelf__interior Shelf__interior--big">
@@ -170,16 +176,8 @@ function GridHouse({ label }) {
 
           <div className="GridHouse__grid">
             {books.map((b) => (
-              <div key={b.id} className="BookCard" title={b.title}>
-                {b.cover_image_url ? (
-                  <img
-                    className="BookCard__img"
-                    src={b.cover_image_url}
-                    alt={b.title}
-                  />
-                ) : (
-                  <div className="BookSlot" />
-                )}
+              <div key={b.id} className="BookSlot">
+                <img className="BookSlot__img" src={b.cover_image_url} alt={b.title} />
               </div>
             ))}
 
@@ -195,11 +193,12 @@ function GridHouse({ label }) {
   );
 }
 
-export default function LibraryPage() {
-  const [view, setView] = useState("shelves"); // "shelves" | "grid"
-  const [activeLabel, setActiveLabel] = useState(null);
 
-  // ✅ Hook called inside component (fixed)
+export default function LibraryPage() {
+  const [view, setView] = useState("shelves");
+  const [activeLabel, setActiveLabel] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
   const { data, loading, error } = useGroupedBooks({ group_size: 4 });
 
   const handleMoreBooks = (label) => {
@@ -207,9 +206,36 @@ export default function LibraryPage() {
     setView("grid");
   };
 
+  const hasSearch = searchTerm.trim().length > 0;
+
   return (
     <div className="LibraryPage">
-      {view === "shelves" ? (
+      {/* Search bar */}
+      {view !== "grid" && (
+        <div className="LibrarySearch">
+        <input
+          className="LibrarySearch__input"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search by title prefix… (e.g., A, Ab, C Book)"
+        />
+        {hasSearch && (
+          <button
+            type="button"
+            className="LibrarySearch__clear"
+            onClick={() => setSearchTerm("")}
+          >
+            Clear
+          </button>
+        )}
+      </div>
+      )}
+      
+
+      {/* When searching, show search results house */}
+      {hasSearch ? (
+        <GridHouse searchPrefix={searchTerm} />
+      ) : view === "shelves" ? (
         <ShelfHouse
           onMoreBooks={handleMoreBooks}
           groupedData={data}
@@ -222,10 +248,7 @@ export default function LibraryPage() {
             type="button"
             className="BackButton"
             onClick={() => setView("shelves")}
-            style={{
-              backgroundColor: "#2f5fb8",
-              color: "white",
-            }}
+            style={{ backgroundColor: "#2f5fb8", color: "white" }}
           >
             ← Back
           </button>

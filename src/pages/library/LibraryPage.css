@@ -1,8 +1,8 @@
 .LibraryPage {
     min-height: 100%;
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    flex-direction: column;   /* ✅ stack vertically */
+    align-items: center;
     padding: 24px;
   }
   
@@ -181,7 +181,34 @@
     border-radius: 8px;
   }
 
-    
-
-      
+  .LibrarySearch {
+    width: min(980px, 100%);
+    display: flex;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  
+  .LibrarySearch__input {
+    flex: 1;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 2px solid rgba(0, 0, 0, 0.15);
+    outline: none;
+    font-weight: 700;
+  }
+  
+  .LibrarySearch__input:focus {
+    border-color: rgba(47, 95, 184, 0.6);
+  }
+  
+  .LibrarySearch__clear {
+    background: #2f5fb8;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.18);
+  }
   

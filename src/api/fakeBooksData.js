@@ -13,14 +13,12 @@ function makeBook(id, title) {
     };
   }
   
-  // Only first two shelves: A-B and C-D-E
-  export const FAKE_BOOK_GROUPS = {
-    A: Array.from({ length: 10 }).map((_, i) => makeBook(`A-${i}`, `A Book ${i + 1}`)),
-    B: Array.from({ length: 10 }).map((_, i) => makeBook(`B-${i}`, `B Book ${i + 1}`)),
-    C: Array.from({ length: 10 }).map((_, i) => makeBook(`C-${i}`, `C Book ${i + 1}`)),
-    D: Array.from({ length: 10 }).map((_, i) => makeBook(`D-${i}`, `D Book ${i + 1}`)),
-    E: Array.from({ length: 10 }).map((_, i) => makeBook(`E-${i}`, `E Book ${i + 1}`)),
-  };
+  export const FAKE_BOOK_GROUPS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").reduce((acc, letter) => {
+    acc[letter] = Array.from({ length: 10 }).map((_, i) =>
+      makeBook(`${letter}-${i}`, `${letter} ${i + 1}`)
+    );
+    return acc;
+  }, {});
   
   // Convenience list for search
   export const FAKE_BOOKS = Object.values(FAKE_BOOK_GROUPS).flat();

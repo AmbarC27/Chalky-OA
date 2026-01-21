@@ -4,7 +4,6 @@ export async function groupBooks(
   { group_by = "title_first_letter", group_size = 4 } = {},
   { signal } = {}
 ) {
-  // Return A–Z keys, but only A–E have data (rest empty)
   const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
   const groups = {};
 
@@ -17,17 +16,31 @@ export async function groupBooks(
 }
 
 export async function searchBooks(
-  { page = 0, row_per_page = 40, title_prefix = [] } = {},
+  { page = 0, row_per_page = 40, title_prefix = [], title } = {},
   { signal } = {}
 ) {
-  const prefixes = (title_prefix || []).map(String);
+  // Supports:
+  //  - title: string (typed prefix)
+  //  - title_prefix: ["A","B"] style (shelf grouping)
 
-  const filtered =
-    prefixes.length === 0
-      ? []
-      : FAKE_BOOKS.filter((b) =>
-          prefixes.some((p) => b.title.startsWith(p))
-        );
+  const typed = (title || "").trim().toLowerCase();
+  const prefixes = (title_prefix || []).map((s) => String(s).toLowerCase());
+
+  let filtered = FAKE_BOOKS;
+
+  if (typed.length > 0) {
+    // prefix-match the full typed string against the book title
+    filtered = filtered.filter((b) =>
+      (b.title || "").toLowerCase().startsWith(typed)
+    );
+  } else if (prefixes.length > 0) {
+    // shelf mode: match by first letter groups
+    filtered = filtered.filter((b) =>
+      prefixes.some((p) => (b.title || "").toLowerCase().startsWith(p))
+    );
+  } else {
+    filtered = [];
+  }
 
   const start = page * row_per_page;
   const end = start + row_per_page;
