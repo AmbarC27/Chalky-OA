@@ -83,15 +83,6 @@
     gap: 14px;
   }
   
-  /* Book placeholders */
-  /* .BookSlot {
-    height: 200px;
-    width: 160px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.18);
-    border: 2px dashed rgba(255, 255, 255, 0.25);
-  } */
-  
   /* Bottom platform (same width as roof/dividers) */
   .Bookhouse__base {
     height: 28px;
@@ -182,10 +173,13 @@
   }
 
   .LibrarySearch {
-    width: min(980px, 100%);
+    width: 100%;
+    max-width: 520px;      /* ⬅️ smaller than house */
     display: flex;
-    gap: 12px;
+    gap: 10px;
     margin-bottom: 18px;
+    align-self: flex-start;  /* ⬅️ break out of center alignment */
+    margin-left: 200px; 
   }
   
   .LibrarySearch__input {
