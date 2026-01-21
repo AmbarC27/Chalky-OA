@@ -84,13 +84,13 @@
   }
   
   /* Book placeholders */
-  .BookSlot {
+  /* .BookSlot {
     height: 200px;
     width: 160px;
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.18);
     border: 2px dashed rgba(255, 255, 255, 0.25);
-  }
+  } */
   
   /* Bottom platform (same width as roof/dividers) */
   .Bookhouse__base {
@@ -132,30 +132,56 @@
 
   .GridHouse__grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, 160px);
     gap: 18px;
+    justify-content: center;
     align-items: end;
+  }
 
-    .GridHouseWrapper {
-        position: relative; /* anchor for BackButton */
-        display: inline-block; /* wrapper hugs the house width */
-      }
-
-    .GridHouseWrapper .BackButton {
-        position: absolute;
-        top: -48px;      /* places it above the roof */
-        left: 0;         /* left corner */
-        background: #2f5fb8; /* same as “More Books” button */
-        color: white;
-        border: none;
-        border-radius: 10px;
-        padding: 10px 14px;
-        font-weight: 800;
-        cursor: pointer;
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.18);
+  .GridHouseWrapper {
+      position: relative; /* anchor for BackButton */
+      display: inline-block; /* wrapper hugs the house width */
     }
 
+  .GridHouseWrapper .BackButton {
+      position: absolute;
+      top: -48px;      /* places it above the roof */
+      left: 0;         /* left corner */
+      background: #2f5fb8; /* same as “More Books” button */
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.18);
+  }
+
+  .BookSlot {
+    width: 160px;                 /* ⬅️ you can increase this */
+    height: 200px;               /* ⬅️ and this */
+    border-radius: 10px;
+  
+    overflow: visible;            /* 🔑 clip image */
+    background: rgba(255, 255, 255, 0.18);
     
-}
+  
+    box-sizing: border-box;      /* 🔑 important */
+  }
+  
+  /* Image fills the entire book */
+  .BookSlot__img {
+    width: 100%;
+    height: 100%;
+  
+    object-fit: cover;           /* 🔑 fills without distortion */
+    object-position: center;
+  
+    display: block;
+    border-radius: 8px;
+  }
+
+    
+
       
   

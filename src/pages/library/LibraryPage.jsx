@@ -1,5 +1,8 @@
-import { useState } from "react";
 import "./LibraryPage.css";
+import { useEffect, useState } from "react";
+import { useGroupedBooks } from "./hooks/useGroupedBooks";
+import { labelToPrefixes } from "./utils";
+import { searchBooks } from "../../api/booksApi";
 
 const SHELVES = [
   { id: "s1", label: "A-B" },
@@ -13,7 +16,30 @@ const SHELVES = [
   { id: "s9", label: "X-Y-Z" },
 ];
 
-function Shelf({ label, isFirst, onMoreBooks }) {
+// helper: for label "C-D-E" take groups C/D/E, flatten, then take 4
+function booksForShelfLabel(label, groupedData) {
+  if (!groupedData?.groups) return [];
+  const prefixes = labelToPrefixes(label);
+  const merged = prefixes.flatMap((p) => groupedData.groups[p] || []);
+  return merged.slice(0, 4);
+}
+
+function Book({ book }) {
+  return (
+    <div className="BookSlot">
+      <img
+        className="BookSlot__img"
+        src={book.cover_image_url}
+        alt={book.title}
+        draggable={false}
+      />
+    </div>
+  );
+}
+
+
+
+function Shelf({ label, isFirst, onMoreBooks, books = [] }) {
   return (
     <section className="Shelf">
       <div className={`Shelf__plank ${isFirst ? "Shelf__plank--roof" : ""}`}>
@@ -22,15 +48,19 @@ function Shelf({ label, isFirst, onMoreBooks }) {
 
       <div className="Shelf__interior">
         <div className="Shelf__slots">
-          <div className="BookSlot" />
-          <div className="BookSlot" />
-          <div className="BookSlot" />
-          <div className="BookSlot" />
+        {books.map((b) => (
+          <Book key={b.id} book={b} />
+        ))}
+
+          {/* pad to 4 if fewer */}
+          {Array.from({ length: Math.max(0, 4 - books.length) }).map((_, i) => (
+            <div key={`empty-${i}`} className="BookSlot" />
+          ))}
 
           <button
             type="button"
             className="Shelf__button"
-            onClick={() => onMoreBooks(label)}   // 👈 pass label up
+            onClick={() => onMoreBooks(label)}
           >
             More
             <br />
@@ -42,7 +72,15 @@ function Shelf({ label, isFirst, onMoreBooks }) {
   );
 }
 
-function ShelfHouse({ onMoreBooks }) {
+function ShelfHouse({ onMoreBooks, groupedData, groupedLoading, groupedError }) {
+  if (groupedLoading) {
+    return <div className="LibraryPage">Loading shelves…</div>;
+  }
+
+  if (groupedError) {
+    return <div className="LibraryPage">Error: {groupedError}</div>;
+  }
+
   return (
     <div className="Bookhouse">
       <div className="Bookhouse__walls">
@@ -52,6 +90,7 @@ function ShelfHouse({ onMoreBooks }) {
             label={s.label}
             isFirst={i === 0}
             onMoreBooks={onMoreBooks}
+            books={booksForShelfLabel(s.label, groupedData)}
           />
         ))}
       </div>
@@ -61,22 +100,91 @@ function ShelfHouse({ onMoreBooks }) {
   );
 }
 
-function GridHouse({ label, totalBooks = 8 }) {
-  const slots = Math.max(totalBooks, 8); // min 2 rows (4 per row)
+function GridHouse({ label }) {
+
+  const titlePrefix = labelToPrefixes(label);
+
+  const [page, setPage] = useState(0);
+  const [books, setBooks] = useState([]);
+  const [totalBooks, setTotalBooks] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // Reset when label changes
+  useEffect(() => {
+    setPage(0);
+    setBooks([]);
+    setTotalBooks(null);
+    setError("");
+  }, [label]);
+
+  // Fetch page 0 when label changes
+  useEffect(() => {
+    if (titlePrefix.length === 0) return;
+
+    const ac = new AbortController();
+    setLoading(true);
+    setError("");
+
+    searchBooks(
+      {
+        page: 0,
+        row_per_page: 40,
+        title_prefix: titlePrefix,
+        sort_by: "title",
+        sort_order: "asc",
+      },
+      { signal: ac.signal }
+    )
+      .then((res) => {
+        setBooks(res.books ?? []);
+        setTotalBooks(res.total_books ?? null);
+        setPage(res.page ?? 0);
+      })
+      .catch((e) => {
+        if (ac.signal.aborted) return;
+        setError(e.message || "Failed to load books");
+      })
+      .finally(() => {
+        if (ac.signal.aborted) return;
+        setLoading(false);
+      });
+
+    return () => ac.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [label]);
+
+  // Minimum 2 rows (4 per row => 8 slots)
+  const minSlots = 8;
+  const placeholdersNeeded = Math.max(0, minSlots - books.length);
 
   return (
     <div className="Bookhouse">
       <div className="Bookhouse__walls">
-        {/* Roof plank with SAME label */}
         <div className="Shelf__plank Shelf__plank--roof">
           <span className="Shelf__label">{label}</span>
         </div>
 
-        {/* One big interior */}
         <div className="Shelf__interior Shelf__interior--big">
+          {error && <div className="ErrorText">{error}</div>}
+
           <div className="GridHouse__grid">
-            {Array.from({ length: slots }).map((_, idx) => (
-              <div key={idx} className="BookSlot" />
+            {books.map((b) => (
+              <div key={b.id} className="BookCard" title={b.title}>
+                {b.cover_image_url ? (
+                  <img
+                    className="BookCard__img"
+                    src={b.cover_image_url}
+                    alt={b.title}
+                  />
+                ) : (
+                  <div className="BookSlot" />
+                )}
+              </div>
+            ))}
+
+            {Array.from({ length: placeholdersNeeded }).map((_, idx) => (
+              <div key={`ph-${idx}`} className="BookSlot" />
             ))}
           </div>
         </div>
@@ -91,6 +199,9 @@ export default function LibraryPage() {
   const [view, setView] = useState("shelves"); // "shelves" | "grid"
   const [activeLabel, setActiveLabel] = useState(null);
 
+  // ✅ Hook called inside component (fixed)
+  const { data, loading, error } = useGroupedBooks({ group_size: 4 });
+
   const handleMoreBooks = (label) => {
     setActiveLabel(label);
     setView("grid");
@@ -99,7 +210,12 @@ export default function LibraryPage() {
   return (
     <div className="LibraryPage">
       {view === "shelves" ? (
-        <ShelfHouse onMoreBooks={handleMoreBooks} />
+        <ShelfHouse
+          onMoreBooks={handleMoreBooks}
+          groupedData={data}
+          groupedLoading={loading}
+          groupedError={error}
+        />
       ) : (
         <div className="GridHouseWrapper">
           <button
@@ -114,7 +230,7 @@ export default function LibraryPage() {
             ← Back
           </button>
 
-          <GridHouse label={activeLabel} totalBooks={8} />
+          <GridHouse label={activeLabel} />
         </div>
       )}
     </div>
