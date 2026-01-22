@@ -45,7 +45,7 @@ export default function LibraryPage() {
             className="LibrarySearch__input"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by title prefix… (e.g., A, Ab, C Book)"
+            placeholder="Write the name of the book"
           />
           {hasSearch && (
             <button
