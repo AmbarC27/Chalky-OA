@@ -37,6 +37,7 @@ export default function GridHouse({ label, searchPrefix }) {
       title: typedPrefix ? typedPrefix : undefined,
       // SHELF MODE:
       title_prefix: typedPrefix ? undefined : titlePrefix,
+      author: undefined,
       sort_by: "title",
       sort_order: "asc",
     })

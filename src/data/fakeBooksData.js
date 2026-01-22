@@ -8,8 +8,11 @@ function makeBook(id, title) {
       id,
       title,
       author: "Mock Author",
+      description: "",
       cover_image_url: coverUrl(id),
       lexile_level: "500L",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
   }
   
@@ -19,7 +22,4 @@ acc[letter] = Array.from({ length: 10 }).map((_, i) =>
 );
 return acc;
 }, {});
-
-// Convenience list for search
-export const FAKE_BOOKS = Object.values(FAKE_BOOK_GROUPS).flat();
   

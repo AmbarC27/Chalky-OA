@@ -18,9 +18,9 @@ export default function LibraryPage() {
 
     groupBooks({
       group_by: "title_first_letter",
-      group_size: 4,
+      group_size: 5,
       page: 0,
-      groups_per_page: 26,
+      groups_per_page: 20,
     })
       .then(setGroupedData)
       .catch((e) => {

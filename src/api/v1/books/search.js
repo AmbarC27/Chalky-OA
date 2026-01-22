@@ -1,16 +1,13 @@
-import { FAKE_BOOKS } from "../../../data/fakeBooksData";
+import { FAKE_BOOK_GROUPS } from "../../../data/fakeBooksData";
 
 export async function searchBooks(
-    { page = 0, row_per_page = 40, title_prefix = [], title } = {},
+    { page = 0, row_per_page = 40, title_prefix = [], title, author, sort_by, sort_order },
   ) {
-    // Supports:
-    //  - title: string (typed prefix)
-    //  - title_prefix: ["A","B"] style (shelf grouping)
   
     const typed = (title || "").trim().toLowerCase();
     const prefixes = (title_prefix || []).map((s) => String(s).toLowerCase());
   
-    let filtered = FAKE_BOOKS;
+    let filtered = Object.values(FAKE_BOOK_GROUPS).flat();
   
     if (typed.length > 0) {
       // prefix-match the full typed string against the book title
@@ -32,7 +29,9 @@ export async function searchBooks(
     return {
       books: filtered.slice(start, end),
       page,
+      row_per_page,
       total_books: filtered.length,
+      sort_by
     };
   }
   
