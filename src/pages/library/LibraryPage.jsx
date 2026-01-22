@@ -1,6 +1,6 @@
 import "./LibraryPage.css";
-import { useState } from "react";
-import { useGroupedBooks } from "./hooks/useGroupedBooks";
+import { useState, useEffect } from "react";
+import { groupBooks } from "../../api/v1/books/group";
 import ShelfHouse from "./components/Shelfhouse";
 import GridHouse from "./components/Gridhouse";
 
@@ -8,8 +8,26 @@ export default function LibraryPage() {
   const [view, setView] = useState("shelves");
   const [activeLabel, setActiveLabel] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [groupedData, setGroupedData] = useState(null);
+  const [groupedLoading, setGroupedLoading] = useState(true);
+  const [groupedError, setGroupedError] = useState("");
 
-  const { data, loading, error } = useGroupedBooks({ group_size: 4 });
+  useEffect(() => {
+    setGroupedLoading(true);
+    setGroupedError("");
+
+    groupBooks({
+      group_by: "title_first_letter",
+      group_size: 4,
+      page: 0,
+      groups_per_page: 26,
+    })
+      .then(setGroupedData)
+      .catch((e) => {
+        setGroupedError(e.message || "Failed to load grouped books");
+      })
+      .finally(() => setGroupedLoading(false));
+  }, []);
 
   const handleMoreBooks = (label) => {
     setActiveLabel(label);
@@ -27,7 +45,7 @@ export default function LibraryPage() {
             className="LibrarySearch__input"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Write the name of the book"
+            placeholder="Search by title prefix… (e.g., A, Ab, C Book)"
           />
           {hasSearch && (
             <button
@@ -47,9 +65,9 @@ export default function LibraryPage() {
       ) : view === "shelves" ? (
         <ShelfHouse
           onMoreBooks={handleMoreBooks}
-          groupedData={data}
-          groupedLoading={loading}
-          groupedError={error}
+          groupedData={groupedData}
+          groupedLoading={groupedLoading}
+          groupedError={groupedError}
         />
       ) : (
         <div className="GridHouseWrapper">

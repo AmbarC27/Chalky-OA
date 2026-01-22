@@ -1,8 +1,7 @@
-import { FAKE_BOOK_GROUPS, FAKE_BOOKS } from "./fakeBooksData";
+import { FAKE_BOOK_GROUPS, FAKE_BOOKS } from "../data/fakeBooksData";
 
 export async function groupBooks(
   { group_by = "title_first_letter", group_size = 4 } = {},
-  { signal } = {}
 ) {
   const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
   const groups = {};
@@ -17,7 +16,6 @@ export async function groupBooks(
 
 export async function searchBooks(
   { page = 0, row_per_page = 40, title_prefix = [], title } = {},
-  { signal } = {}
 ) {
   // Supports:
   //  - title: string (typed prefix)
